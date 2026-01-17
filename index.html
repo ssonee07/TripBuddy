@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TripBuddy - ว่างไหมไปเที่ยวกัน!</title>
+    <title>TripBuddy - วางแผนทริปกัน!</title>
     
     <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
@@ -17,7 +17,7 @@
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         @keyframes float { 0%, 100% { transform: translateY(0px) rotate(2deg); } 50% { transform: translateY(-6px) rotate(-1deg); } }
         .animate-float { animation: float 4s ease-in-out infinite; }
-        .bg-cute { background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%); }
+        .bg-cute { background: linear-gradient(135deg, #fef2f2 0%, #f0f9ff 100%); }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 text-sm">
@@ -36,6 +36,7 @@
 
         const Icon = ({ name, size = 18, className = "" }) => {
             const icons = {
+                PartyBus: html`<path d="M4 11V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/><rect width="18" height="8" x="3" y="11" rx="2"/><circle cx="7" cy="19" r="2"/><circle cx="17" cy="19" r="2"/><path d="M8 11V9"/><path d="M16 11V9"/><path d="M3 14h18"/><path d="M12 11v8"/><path d="M7 11v2"/><path d="M17 11v2"/>`,
                 MapPin: html`<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>`,
                 Sun: html`<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>`,
                 Palmtree: html`<path d="M13 8c0-2.76-2.46-5-5.5-5S2 5.24 2 8h2l1-1 1 1h4"/><path d="M13 7.14A5.82 5.82 0 0 1 16.5 6c3.04 0 5.5 2.24 5.5 5h-3l-1 1-1-1h-3"/><path d="M11 15.5c.5 2.5-.5 4.5-2.5 6.5"/><path d="M13 15.5c-.5 2.5.5 4.5 2.5 6.5"/>`,
@@ -43,13 +44,11 @@
                 CheckCircle: html`<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>`,
                 ChevronLeft: html`<polyline points="15 18 9 12 15 6"/>`,
                 ChevronRight: html`<polyline points="9 18 15 12 9 6"/>`,
-                Info: html`<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/>`,
-                Check: html`<polyline points="20 6 9 17 4 12"/>`,
-                Users: html`<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`,
+                LogOut: html`<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>`,
                 Plus: html`<line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/>`,
-                ThumbsUp: html`<path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"/>`,
+                Heart: html`<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>`,
                 Clock: html`<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>`,
-                Home: html`<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>`
+                Home: html`<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>`
             };
             return html`
                 <svg xmlns="http://www.w3.org/2000/svg" width=${size} height=${size} style=${{width: size+'px', height: size+'px'}} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0 ${className}">
@@ -127,10 +126,20 @@
                 setData(newData);
             };
 
+            const togglePlaceVote = (placeName) => {
+                const newData = { ...data };
+                const place = newData.destinations.find(d => d.name === placeName);
+                if (place) {
+                    const votes = place.votes || [];
+                    place.votes = votes.includes(userName) ? votes.filter(u => u !== userName) : [...votes, userName];
+                    setData(newData);
+                }
+            };
+
             const daysInMonth = useMemo(() => {
                 const d = new Date(viewMonth.getFullYear(), viewMonth.getMonth(), 1);
                 const days = [];
-                while (d.getMonth() === viewMonth.getMonth()) { days.push(new Date(d)); d.setDate(d.getDate() + 1); }
+                while (d.getMonth() === viewMonth.getMonth()) { days.push(new Date(d)); d.setDate(date.getDate() + 1); }
                 return days;
             }, [viewMonth]);
 
@@ -140,13 +149,13 @@
                     <div class="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-10 text-center relative overflow-hidden border border-white">
                         <div class="absolute top-0 right-0 p-4 opacity-10 rotate-12"><${Icon} name="Sun" size="64" className="text-orange-400" /></div>
                         <div class="absolute bottom-0 left-0 p-4 opacity-10 -rotate-12"><${Icon} name="Palmtree" size="64" className="text-green-400" /></div>
-                        <div class="bg-blue-500 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg animate-float">
-                            <${Icon} name="MapPin" size="32" className="text-white" />
+                        <div class="bg-rose-500 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-lg animate-float">
+                            <${Icon} name="PartyBus" size="44" className="text-white" />
                         </div>
-                        <h1 class="text-2xl font-black text-slate-800 mb-2">ว่างไหมไปเที่ยวกัน</h1>
-                        <p class="text-slate-400 mb-8 text-xs font-bold uppercase tracking-widest">Let's go mate</p>
-                        <input type="text" class="w-full px-6 py-4 rounded-2xl border-2 border-slate-100 focus:border-blue-400 outline-none text-center font-bold text-lg mb-4" placeholder="ใส่ชื่อเล่นของคุณ" value=${userName} onChange=${e => setUserName(e.target.value)} />
-                        <button onClick=${() => userName && setIsLoggedIn(true)} class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-xl transform active:scale-95 transition-all">ไปกันเลย! 🚀</button>
+                        <h1 class="text-2xl font-black text-slate-800 mb-2 leading-tight">ไปปาร์ตี้ทริปกัน!</h1>
+                        <p class="text-slate-400 mb-8 text-xs font-bold uppercase tracking-widest leading-none">Let's Plan Our Journey</p>
+                        <input type="text" class="w-full px-6 py-4 rounded-2xl border-2 border-slate-100 focus:border-rose-400 outline-none text-center font-bold text-lg mb-4 shadow-inner" placeholder="ระบุชื่อเล่นของคุณ" value=${userName} onChange=${e => setUserName(e.target.value)} onKeyDown=${e => e.key === 'Enter' && userName && setIsLoggedIn(true)} />
+                        <button onClick=${() => userName && setIsLoggedIn(true)} class="w-full bg-rose-600 text-white font-black py-4 rounded-2xl shadow-xl transform active:scale-95 transition-all text-lg">เข้าสู่ระบบ 🚌</button>
                     </div>
                 </div>`;
             }
@@ -157,22 +166,25 @@
                     <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
                         <div class="bg-white rounded-[2rem] p-8 text-center shadow-2xl animate-in zoom-in duration-300">
                             <div class="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4"><${Icon} name="CheckCircle" size="32" /></div>
-                            <h3 class="font-black text-xl mb-2">บันทึกเรียบร้อย!</h3>
+                            <h3 class="font-black text-xl mb-2 leading-none">บันทึกเรียบร้อย!</h3>
                             <p class="text-slate-400 text-xs mb-6">ข้อมูลของคุณเข้าสู่ระบบแล้วครับ</p>
-                            <button onClick=${() => setShowSuccess(false)} class="w-full bg-slate-100 py-3 rounded-xl font-bold">ปิด</button>
+                            <button onClick=${() => setShowSuccess(false)} class="w-full bg-slate-100 py-3 rounded-xl font-bold">ตกลง</button>
                         </div>
                     </div>`}
 
-                    <header class="bg-white/80 backdrop-blur-md border-b p-4 sticky top-0 z-40 flex justify-between items-center shadow-sm">
-                        <div class="flex items-center gap-2 font-black text-blue-600 uppercase text-base tracking-tighter"><${Icon} name="MapPin" size="20" /> Trip Buddy</div>
-                        <div class="bg-blue-50 px-3 py-1 rounded-full text-[10px] font-black text-blue-600 border border-blue-100">สวัสดี, ${userName}</div>
+                    <header class="bg-white/80 backdrop-blur-md border-b p-4 sticky top-0 z-40 flex justify-between items-center shadow-sm px-6">
+                        <div class="flex items-center gap-2 font-black text-rose-600 uppercase text-base tracking-tighter"><${Icon} name="PartyBus" size="24" /> Trip Buddy</div>
+                        <div class="flex items-center gap-3">
+                            <div class="hidden sm:block bg-slate-100 px-3 py-1 rounded-full text-[10px] font-black text-slate-500 uppercase tracking-widest">${userName}</div>
+                            <button onClick=${() => { setUserName(''); setIsLoggedIn(false); }} title="Logout" class="text-slate-300 hover:text-red-500 transition-colors p-1"><${Icon} name="LogOut" size="18" /></button>
+                        </div>
                     </header>
 
                     <main class="p-4 max-w-2xl mx-auto space-y-6">
                         <div class="flex bg-white p-1.5 rounded-2xl border shadow-sm">
-                            <button onClick=${() => setActiveTab('styles')} class=${`flex-1 py-3 rounded-xl font-black text-xs transition-all ${activeTab === 'styles' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400'}`}>1. สไตล์ทริป</button>
-                            <button onClick=${() => setActiveTab('places')} class=${`flex-1 py-3 rounded-xl font-black text-xs transition-all ${activeTab === 'places' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400'}`}>2. ที่เที่ยว</button>
-                            <button onClick=${() => setActiveTab('days')} class=${`flex-1 py-3 rounded-xl font-black text-xs transition-all ${activeTab === 'days' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400'}`}>3. วันว่าง</button>
+                            <button onClick=${() => setActiveTab('styles')} class=${`flex-1 py-3 rounded-xl font-black text-xs transition-all ${activeTab === 'styles' ? 'bg-rose-600 text-white shadow-lg shadow-rose-100' : 'text-slate-400'}`}>1. สไตล์ทริป</button>
+                            <button onClick=${() => setActiveTab('places')} class=${`flex-1 py-3 rounded-xl font-black text-xs transition-all ${activeTab === 'places' ? 'bg-rose-600 text-white shadow-lg shadow-rose-100' : 'text-slate-400'}`}>2. ที่เที่ยว</button>
+                            <button onClick=${() => setActiveTab('days')} class=${`flex-1 py-3 rounded-xl font-black text-xs transition-all ${activeTab === 'days' ? 'bg-rose-600 text-white shadow-lg shadow-rose-100' : 'text-slate-400'}`}>3. วันว่าง</button>
                         </div>
 
                         ${activeTab === 'styles' && html`
@@ -181,14 +193,14 @@
                                 <div>
                                     <h3 class="text-xs font-black text-slate-300 uppercase tracking-widest mb-4 flex items-center gap-2"><${Icon} name="Clock" size="14" /> ระยะเวลาที่อยากไป</h3>
                                     <div class="grid grid-cols-2 gap-3">
-                                        ${["1 วัน", "2 วัน 1 คืน", "3 วัน 2 คืน", "4 วัน 3 คืน"].map(opt => html`
-                                        <button onClick=${() => toggleVote('dur', opt)} class=${`p-4 rounded-2xl border-2 text-sm font-bold text-left transition-all ${ (data.preferences?.durationVotes?.[opt] || []).includes(userName) ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'bg-slate-50 border-slate-100 hover:bg-slate-100' }`}>${opt}</button>`)}
+                                        ${["1 วัน", "2 วัน 1 คืน", "3 วัน 2 คืน", "4 วัน 3 คืน", "5 วัน 4 คืน"].map(opt => html`
+                                        <button onClick=${() => toggleVote('dur', opt)} class=${`p-4 rounded-2xl border-2 text-sm font-bold text-left transition-all ${ (data.preferences?.durationVotes?.[opt] || []).includes(userName) ? 'bg-rose-600 border-rose-600 text-white shadow-lg' : 'bg-slate-50 border-slate-100 hover:bg-slate-100' }`}>${opt}</button>`)}
                                     </div>
                                 </div>
                                 <div>
                                     <h3 class="text-xs font-black text-slate-300 uppercase tracking-widest mb-4 flex items-center gap-2"><${Icon} name="Home" size="14" /> อยากพักแบบไหน</h3>
                                     <div class="grid grid-cols-2 gap-3">
-                                        ${['Hotel', 'Hostel', 'Pool Villa', 'Camping'].map(opt => html`
+                                        ${['Hotel', 'Hostel', 'Pool Villa', 'Camping', 'Glamping', 'Resort', 'Homestay', 'Condo/Airbnb'].map(opt => html`
                                         <button onClick=${() => toggleVote('acc', opt)} class=${`p-4 rounded-2xl border-2 text-sm font-bold text-left transition-all ${ (data.preferences?.accommodationVotes?.[opt] || []).includes(userName) ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg' : 'bg-slate-50 border-slate-100 hover:bg-slate-100' }`}>${opt}</button>`)}
                                     </div>
                                 </div>
@@ -198,13 +210,21 @@
                         ${activeTab === 'places' && html`
                         <div class="bg-white p-6 rounded-[2rem] border shadow-sm space-y-6 animate-in slide-in-from-bottom-4 duration-500">
                             <div class="flex gap-2">
-                                <input type="text" class="flex-1 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 outline-none focus:border-blue-400 font-bold text-sm" placeholder="เสนอที่เที่ยว/ที่พักที่อยากไป..." value=${newPlace} onChange=${e => setNewPlace(e.target.value)} />
-                                <button onClick=${() => { if(!newPlace) return; setData({...data, destinations:[...(data.destinations||[]), {name:newPlace}]}); setNewPlace(''); }} class="bg-blue-600 text-white p-3 rounded-xl shadow-lg"><${Icon} name="Plus" size="20" /></button>
+                                <input type="text" class="flex-1 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 outline-none focus:border-rose-400 font-bold text-sm" placeholder="เสนอที่เที่ยว/ที่พักที่อยากไป..." value=${newPlace} onChange=${e => setNewPlace(e.target.value)} />
+                                <button onClick=${() => { if(!newPlace) return; setData({...data, destinations:[...(data.destinations||[]), {name:newPlace, votes:[userName]}]}); setNewPlace(''); }} class="bg-rose-600 text-white p-3 rounded-xl shadow-lg"><${Icon} name="Plus" size="20" /></button>
                             </div>
-                            <div class="space-y-2">
-                                <p class="text-[10px] font-black text-slate-300 uppercase">รายชื่อที่เพื่อนๆ เสนอ (Anonymous)</p>
-                                ${(data.destinations || []).map(dest => html`
-                                <div class="bg-slate-50 p-4 rounded-2xl border border-white shadow-sm font-bold text-slate-600">${dest.name}</div>`)}
+                            <div class="space-y-3">
+                                <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">โหวตสถานที่ของเพื่อน (Anonymous)</p>
+                                ${(data.destinations || []).map(dest => {
+                                    const isMeVoted = (dest.votes || []).includes(userName);
+                                    return html`
+                                    <div class="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-white shadow-sm transition-all">
+                                        <span class="font-bold text-slate-600 text-base leading-tight">${dest.name}</span>
+                                        <button onClick=${() => togglePlaceVote(dest.name)} class=${`p-3 rounded-xl transition-all ${isMeVoted ? 'bg-rose-500 text-white shadow-md scale-110' : 'bg-white text-slate-300 border border-slate-100'}`}>
+                                            <${Icon} name="Heart" size="18" className=${isMeVoted ? "fill-current" : ""} />
+                                        </button>
+                                    </div>`;
+                                })}
                             </div>
                         </div>`}
 
@@ -226,13 +246,16 @@
                                     const isAvail = user && (user.available || []).includes(dStr);
                                     const isBusy = user && (user.busy || []).includes(dStr);
                                     return html`
-                                    <button onClick=${() => toggleDate(dStr)} class=${`aspect-square rounded-xl border-2 flex items-center justify-center text-xs font-black transition-all ${isAvail ? 'bg-blue-600 border-blue-600 text-white shadow-md' : isBusy ? 'bg-red-500 border-red-500 text-white shadow-md' : 'bg-white border-slate-50 text-slate-300'}`}>${date.getDate()}</button>`})}
+                                    <button onClick=${() => toggleDate(dStr)} class=${`aspect-square rounded-xl border-2 flex items-center justify-center text-xs font-black transition-all ${isAvail ? 'bg-blue-600 border-blue-600 text-white shadow-md' : isBusy ? 'bg-red-500 border-red-500 text-white shadow-md' : 'bg-white border-slate-50 text-slate-300 hover:border-blue-100'}`}>${date.getDate()}</button>`})}
                             </div>
-                            <div class="p-3 bg-blue-50 rounded-xl text-[10px] text-blue-600 italic font-medium leading-relaxed">คลิก 1 ครั้ง = ว่าง | 2 ครั้ง = ไม่ว่าง | 3 ครั้ง = ล้างค่า</div>
+                            <div class="p-4 bg-rose-50 rounded-2xl text-[10px] text-rose-600 italic font-bold leading-relaxed flex gap-2">
+                                <${Icon} name="Info" size="14" /> 
+                                <div>คลิก 1 ครั้ง = ว่าง | 2 ครั้ง = ไม่ว่าง | 3 ครั้ง = ล้างค่า</div>
+                            </div>
                         </div>`}
 
-                        <button onClick=${syncToCloud} disabled=${isSaving} class="w-full bg-gradient-to-r from-green-600 to-emerald-500 text-white font-black py-4 rounded-2xl shadow-xl shadow-green-100 transform active:scale-95 transition-all text-base mt-4">
-                            ${isSaving ? "กำลังซิงค์ข้อมูล..." : html`<span class="flex items-center justify-center gap-2"><${Icon} name="CheckCircle" size="20" /> ยืนยันและส่งข้อมูลทั้งหมด 🥂</span>`}
+                        <button onClick=${syncToCloud} disabled=${isSaving} class="w-full bg-gradient-to-r from-rose-600 to-orange-500 text-white font-black py-4 rounded-2xl shadow-xl shadow-rose-100 transform active:scale-95 transition-all text-base mt-4">
+                            ${isSaving ? "กำลังส่งข้อมูล..." : html`<span class="flex items-center justify-center gap-2"><${Icon} name="CheckCircle" size="20" /> ยืนยันและส่งข้อมูลทั้งหมด 🥂</span>`}
                         </button>
                     </main>
                 </div>`;
@@ -241,5 +264,4 @@
         ReactDOM.createRoot(document.getElementById('root')).render(html`<${App} />`);
     </script>
 </body>
-
 </html>
