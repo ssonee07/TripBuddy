@@ -6,12 +6,11 @@
     <title>TripBuddy - Input System</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Core Libraries (Load first) -->
-    <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://unpkg.com/lucide-react@latest"></script>
-    <!-- Babel (Load last) -->
+    <!-- Core Libraries -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/lucide-react@0.263.1/dist/umd/lucide-react.min.js"></script>
+    <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <style>
@@ -30,8 +29,8 @@
 </head>
 <body class="bg-slate-50 text-slate-800">
     <div id="root">
-        <!-- ตัวอักษรที่จะแสดงก่อน React โหลดเสร็จ เพื่อไม่ให้หน้าขาว -->
-        <div class="min-h-screen flex items-center justify-center">
+        <!-- Loader ระหว่างรอ JS ทำงาน -->
+        <div id="boot-loader" class="min-h-screen flex items-center justify-center bg-fun-gradient">
             <div class="text-center">
                 <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                 <p class="font-bold text-slate-400 animate-pulse">กำลังเตรียมความสนุก...</p>
@@ -41,22 +40,39 @@
 
     <script type="text/babel">
         /**
-         * Safe Component Initializer
-         * รอจนกว่า window.LucideReact และ window.React จะพร้อม
+         * INITIALIZATION GUARD
          */
-        const runTripBuddy = () => {
+        const initApp = () => {
+            const container = document.getElementById('root');
             if (!window.React || !window.LucideReact) {
-                setTimeout(runTripBuddy, 100);
+                container.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">ไม่สามารถโหลด Library ได้ กรุณาเชื่อมต่ออินเทอร์เน็ตและรีเฟรชหน้าจอ</div>`;
                 return;
             }
 
             const { useState, useEffect, useMemo, useCallback } = window.React;
-            const { 
-                Calendar, MapPin, Users, Plus, CheckCircle, 
-                ChevronRight, ChevronLeft, ThumbsUp, 
-                AlertCircle, Clock, Home, Info, Check, LogOut,
-                Sparkles, Palmtree, Sun
-            } = window.LucideReact;
+            
+            // ป้องกัน Error จากการเรียกใช้ไอคอน
+            const getIcon = (name) => {
+                const Icon = window.LucideReact[name];
+                return Icon ? Icon : (props) => <span className="text-[10px]">[{name}]</span>;
+            };
+
+            const Calendar = getIcon('Calendar');
+            const MapPin = getIcon('MapPin');
+            const Users = getIcon('Users');
+            const Plus = getIcon('Plus');
+            const CheckCircle = getIcon('CheckCircle');
+            const ChevronRight = getIcon('ChevronRight');
+            const ChevronLeft = getIcon('ChevronLeft');
+            const ThumbsUp = getIcon('ThumbsUp');
+            const Clock = getIcon('Clock');
+            const Home = getIcon('Home');
+            const Info = getIcon('Info');
+            const Check = getIcon('Check');
+            const LogOut = getIcon('LogOut');
+            const Sparkles = getIcon('Sparkles');
+            const Palmtree = getIcon('Palmtree');
+            const Sun = getIcon('Sun');
 
             // === ระบุ URL ของคุณที่นี่เพื่อให้เชื่อมกับฐานข้อมูลเดียวกัน ===
             const HARDCODED_SHEET_URL = "https://script.google.com/macros/s/AKfycbz5nukgyV2w5goNKakjYkKrtWvk9l6MUgAg_WCJyhlKlexWgxf8ifS6YtjNXuIesm4t/exec"; 
@@ -77,9 +93,8 @@
 
                 const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
 
-                // Fetch Data from Google Sheets
                 const fetchData = useCallback(async () => {
-                    if (!HARDCODED_SHEET_URL || HARDCODED_SHEET_URL === "") return;
+                    if (!HARDCODED_SHEET_URL) return;
                     try {
                         const res = await fetch(HARDCODED_SHEET_URL);
                         const result = await res.json();
@@ -93,9 +108,7 @@
                                 }
                             });
                         }
-                    } catch (e) { 
-                        console.error("Fetch Error:", e);
-                    }
+                    } catch (e) { console.error("Fetch Error:", e); }
                 }, []);
 
                 useEffect(() => {
@@ -134,7 +147,9 @@
 
                 const toggleDateStatus = (dateStr) => {
                     const newData = { ...data };
+                    if (!Array.isArray(newData.availabilities)) newData.availabilities = [];
                     let userIdx = newData.availabilities.findIndex(a => a.name === userName);
+                    
                     if (userIdx === -1) {
                         newData.availabilities.push({ name: userName, available: [dateStr], busy: [] });
                     } else {
@@ -160,19 +175,14 @@
                     if (!newData.preferences[field]) newData.preferences[field] = {};
                     const votes = Array.isArray(newData.preferences[field][value]) ? newData.preferences[field][value] : [];
                     
-                    if (votes.includes(userName)) {
-                        newData.preferences[field][value] = votes.filter(u => u !== userName);
-                    } else {
-                        newData.preferences[field][value] = [...votes, userName];
-                    }
+                    newData.preferences[field][value] = votes.includes(userName) ? votes.filter(u => u !== userName) : [...votes, userName];
                     setData(newData);
                 };
 
-                // Login Page
                 if (!isLoggedIn) {
                     return (
                         <div className="min-h-screen bg-fun-gradient flex items-center justify-center p-4">
-                            <div className="max-w-md w-full bg-white/90 backdrop-blur-xl rounded-[3rem] shadow-2xl p-10 border border-white text-center relative overflow-hidden">
+                            <div className="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-10 border border-white text-center relative overflow-hidden">
                                 <div className="absolute top-0 right-0 p-4 opacity-10 rotate-12"><Sun size={120} className="text-orange-400" /></div>
                                 <div className="absolute bottom-0 left-0 p-4 opacity-10 -rotate-12"><Palmtree size={120} className="text-green-400" /></div>
                                 
@@ -186,25 +196,13 @@
                                 </div>
 
                                 <h1 className="text-4xl font-black text-slate-800 mb-2 tracking-tight">ไปเที่ยวกัน! 🌴</h1>
-                                <p className="text-slate-500 mb-10 font-bold italic">ร่วมกันวางแผนทริปที่สนุกที่สุด</p>
+                                <p className="text-slate-500 mb-10 font-bold italic">วางแผนทริปให้สนุกกับเพื่อนๆ</p>
                                 
                                 <div className="space-y-4 relative z-10">
-                                    <input 
-                                        type="text" 
-                                        className="w-full px-8 py-5 rounded-3xl border-2 border-slate-100 focus:border-blue-500 focus:ring-8 focus:ring-blue-500/5 outline-none transition-all text-center text-xl font-extrabold shadow-inner bg-white" 
-                                        placeholder="ใส่ชื่อเล่นของคุณ" 
-                                        value={userName} 
-                                        onChange={e => setUserName(e.target.value)} 
-                                        onKeyDown={e => e.key === 'Enter' && userName && setIsLoggedIn(true)} 
-                                    />
-                                    <button 
-                                        onClick={() => userName && setIsLoggedIn(true)} 
-                                        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black py-5 rounded-3xl hover:shadow-2xl shadow-blue-200 transform active:scale-95 transition-all text-xl"
-                                    >
-                                        ออกเดินทางเลย! 🚀
-                                    </button>
+                                    <input type="text" className="w-full px-8 py-5 rounded-3xl border-2 border-slate-100 focus:border-blue-500 focus:ring-8 focus:ring-blue-500/5 outline-none transition-all text-center text-xl font-extrabold shadow-inner bg-white" placeholder="ระบุชื่อเล่นของคุณ" value={userName} onChange={e => setUserName(e.target.value)} onKeyDown={e => e.key === 'Enter' && userName && setIsLoggedIn(true)} />
+                                    <button onClick={() => userName && setIsLoggedIn(true)} className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black py-5 rounded-3xl hover:shadow-2xl shadow-blue-200 transform active:scale-95 transition-all text-xl">ออกเดินทางเลย! 🚀</button>
                                 </div>
-                                <p className="mt-10 text-[11px] text-slate-300 uppercase font-black tracking-[0.3em]">TripBuddy v2.6 Stable</p>
+                                <p className="mt-10 text-[11px] text-slate-300 uppercase font-black tracking-[0.3em]">TripBuddy v2.7 Stable</p>
                             </div>
                         </div>
                     );
@@ -212,15 +210,14 @@
 
                 return (
                     <div className="min-h-screen bg-slate-50 pb-24">
-                        {/* Success Modal */}
                         {showSuccessModal && (
                             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 text-center">
-                                <div className="bg-white rounded-[2.5rem] p-10 max-w-xs w-full shadow-2xl border border-slate-100 animate-in fade-in zoom-in duration-300">
+                                <div className="bg-white rounded-[2.5rem] p-10 max-w-xs w-full shadow-2xl animate-in fade-in zoom-in duration-300">
                                     <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600">
                                         <CheckCircle size={56} strokeWidth={2.5}/>
                                     </div>
-                                    <h3 className="text-2xl font-black text-slate-800 mb-2">เรียบร้อย!</h3>
-                                    <p className="text-slate-500 text-sm mb-8 font-medium">บันทึกข้อมูลของคุณเข้ากลุ่มแล้วครับ</p>
+                                    <h3 className="text-2xl font-black text-slate-800 mb-2">สำเร็จ!</h3>
+                                    <p className="text-slate-500 text-sm mb-8 font-medium">บันทึกข้อมูลเข้ากลุ่มเรียบร้อยแล้ว</p>
                                     <button onClick={() => setShowSuccessModal(false)} className="w-full bg-slate-100 hover:bg-slate-200 py-4 rounded-2xl font-black text-slate-700 transition-colors">ตกลง</button>
                                 </div>
                             </div>
@@ -230,31 +227,31 @@
                             <div className="flex items-center gap-2 font-black text-blue-600 uppercase tracking-tighter text-lg">
                                 <MapPin size={24} strokeWidth={3}/> Trip Buddy
                             </div>
-                            <div className="flex items-center gap-3">
-                                <div className="text-xs font-black bg-blue-50 px-4 py-2 rounded-full text-blue-600 border border-blue-100 shadow-sm">{userName}</div>
+                            <div className="flex items-center gap-3 text-xs font-black">
+                                <div className="bg-blue-50 px-4 py-2 rounded-full text-blue-600 border border-blue-100">{userName}</div>
                                 <button onClick={() => setIsLoggedIn(false)} className="text-slate-300 hover:text-red-500 transition-colors p-2"><LogOut size={20}/></button>
                             </div>
                         </header>
 
                         <main className="p-4 md:p-8 max-w-3xl mx-auto space-y-6">
                             <div className="flex bg-white p-2 rounded-3xl border shadow-sm gap-1">
-                                <button onClick={() => setActiveTab('availability')} className={`flex-1 py-4 rounded-2xl font-black transition-all ${activeTab === 'availability' ? 'bg-blue-600 text-white shadow-xl shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}>1. ลงวันว่าง</button>
-                                <button onClick={() => setActiveTab('vote')} className={`flex-1 py-4 rounded-2xl font-black transition-all ${activeTab === 'vote' ? 'bg-blue-600 text-white shadow-xl shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}>2. โหวตสไตล์</button>
+                                <button onClick={() => setActiveTab('availability')} className={`flex-1 py-4 rounded-2xl font-black transition-all ${activeTab === 'availability' ? 'bg-blue-600 text-white shadow-xl' : 'text-slate-400 hover:bg-slate-50'}`}>1. ลงวันว่าง</button>
+                                <button onClick={() => setActiveTab('vote')} className={`flex-1 py-4 rounded-2xl font-black transition-all ${activeTab === 'vote' ? 'bg-blue-600 text-white shadow-xl' : 'text-slate-400 hover:bg-slate-50'}`}>2. โหวตสไตล์</button>
                             </div>
 
                             {activeTab === 'availability' && (
-                                <div className="bg-white p-8 rounded-[2.5rem] border shadow-sm space-y-8 animate-in fade-in duration-500">
+                                <div className="bg-white p-6 md:p-8 rounded-[2.5rem] border shadow-sm space-y-8">
                                     <div className="flex justify-between items-center flex-wrap gap-4">
                                         <h2 className="font-black text-2xl tracking-tight">ระบุตารางเวลา</h2>
                                         <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-2xl border text-sm font-black">
-                                            <button onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth()-1))} className="p-2 hover:bg-white rounded-xl transition-colors"><ChevronLeft size={18}/></button>
+                                            <button onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth()-1))} className="p-2 hover:bg-white rounded-xl shadow-sm"><ChevronLeft size={18}/></button>
                                             <span className="w-32 text-center text-slate-700">{months[viewMonth.getMonth()]} {viewMonth.getFullYear()+543}</span>
-                                            <button onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth()+1))} className="p-2 hover:bg-white rounded-xl transition-colors"><ChevronRight size={18}/></button>
+                                            <button onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth()+1))} className="p-2 hover:bg-white rounded-xl shadow-sm"><ChevronRight size={18}/></button>
                                         </div>
                                     </div>
-                                    <div className="bg-blue-50 p-5 rounded-3xl flex gap-4 text-sm text-blue-800 border border-blue-100">
+                                    <div className="bg-blue-50 p-5 rounded-3xl flex gap-4 text-sm text-blue-800 border border-blue-100 shadow-inner leading-relaxed">
                                         <Info size={24} className="text-blue-600 shrink-0"/>
-                                        <div className="font-medium">คลิก 1 ครั้ง = <strong>ว่าง</strong> | 2 ครั้ง = <strong>ติดธุระ</strong> | 3 ครั้ง = <strong>ล้างค่า</strong></div>
+                                        <div className="font-medium italic">คลิก 1 ครั้ง = <strong>ว่าง</strong> | 2 ครั้ง = <strong>ติดธุระ</strong> | 3 ครั้ง = <strong>ล้างค่า</strong></div>
                                     </div>
                                     <div className="grid grid-cols-7 gap-1 text-center font-black text-[11px] text-slate-300 uppercase tracking-[0.2em]">
                                         {['อา','จ','อ','พ','พฤ','ศ','ส'].map(d => <div key={d} className="py-2">{d}</div>)}
@@ -263,7 +260,7 @@
                                         {Array(viewMonth.getDay()).fill(null).map((_, i) => <div key={`empty-${i}`}/>)}
                                         {daysInMonth.map(date => {
                                             const dStr = date.toISOString().split('T')[0];
-                                            const user = data.availabilities.find(a => a.name === userName);
+                                            const user = Array.isArray(data.availabilities) ? data.availabilities.find(a => a.name === userName) : null;
                                             const isAvail = (user?.available || []).includes(dStr);
                                             const isBusy = (user?.busy || []).includes(dStr);
                                             return (
@@ -282,7 +279,7 @@
                             )}
 
                             {activeTab === 'vote' && (
-                                <div className="space-y-6 animate-in fade-in duration-500">
+                                <div className="space-y-6">
                                     <div className="bg-white p-8 rounded-[2.5rem] border shadow-sm space-y-8">
                                         <h2 className="font-black text-2xl flex items-center gap-3 text-slate-800 tracking-tight"><Users className="text-blue-600" size={28}/> สไตล์ที่คุณชอบ</h2>
                                         <div className="space-y-8">
@@ -290,7 +287,7 @@
                                                 <h3 className="text-xs font-black text-slate-400 mb-4 uppercase tracking-[0.2em]">ประเภทที่พัก</h3>
                                                 <div className="grid grid-cols-2 gap-3">
                                                     {['โรงแรม', 'กางเต็นท์', 'Pool Villa', 'โฮมสเตย์', 'รีสอร์ท'].map(opt => (
-                                                        <button key={opt} onClick={() => handleVotePreference('accommodation', opt)} className={`p-5 rounded-[1.5rem] border-2 text-sm font-black text-left transition-all ${ (data.preferences.accommodationVotes[opt] || []).includes(userName) ? 'bg-blue-600 border-blue-600 text-white shadow-xl' : 'bg-slate-50 border-slate-100 hover:bg-slate-100'}`}>{opt}</button>
+                                                        <button key={opt} onClick={() => handleVotePreference('accommodation', opt)} className={`p-5 rounded-[1.5rem] border-2 text-sm font-black text-left transition-all ${ (data.preferences?.accommodationVotes?.[opt] || []).includes(userName) ? 'bg-blue-600 border-blue-600 text-white shadow-xl' : 'bg-slate-50 border-slate-100 hover:bg-slate-100'}`}>{opt}</button>
                                                     ))}
                                                 </div>
                                             </div>
@@ -298,20 +295,20 @@
                                                 <h3 className="text-xs font-black text-slate-400 mb-4 uppercase tracking-[0.2em]">ระยะเวลาทริป</h3>
                                                 <div className="grid grid-cols-2 gap-3">
                                                     {["1 วัน", "2 วัน 1 คืน", "3 วัน 2 คืน", "4 วัน 3 คืน"].map(opt => (
-                                                        <button key={opt} onClick={() => handleVotePreference('duration', opt)} className={`p-5 rounded-[1.5rem] border-2 text-sm font-black text-left transition-all ${ (data.preferences.durationVotes[opt] || []).includes(userName) ? 'bg-blue-600 border-blue-600 text-white shadow-xl' : 'bg-slate-50 border-slate-100 hover:bg-slate-100'}`}>{opt}</button>
+                                                        <button key={opt} onClick={() => handleVotePreference('duration', opt)} className={`p-5 rounded-[1.5rem] border-2 text-sm font-black text-left transition-all ${ (data.preferences?.durationVotes?.[opt] || []).includes(userName) ? 'bg-blue-600 border-blue-600 text-white shadow-xl' : 'bg-slate-50 border-slate-100 hover:bg-slate-100'}`}>{opt}</button>
                                                     ))}
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="bg-white p-8 rounded-[2.5rem] border shadow-sm space-y-8">
-                                        <h2 className="font-black text-2xl flex items-center gap-3 text-slate-800 tracking-tight"><Palmtree className="text-green-500" size={28}/> เสนอที่เที่ยว</h2>
+                                        <h2 className="font-black text-2xl flex items-center gap-3 text-slate-800 tracking-tight"><Palmtree className="text-green-500" size={28}/> เสนอที่เที่ยว & โหวต</h2>
                                         <div className="flex gap-3">
-                                            <input type="text" className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-5 outline-none focus:border-blue-500 transition-all font-bold shadow-inner" placeholder="ชื่อสถานที่..." value={newLocationName} onChange={e => setNewLocationName(e.target.value)} />
-                                            <button onClick={() => { if(!newLocationName) return; setData({...data, destinations:[...data.destinations, {id:Date.now(), name:newLocationName, votes:[userName]}]}); setNewLocationName(''); }} className="bg-blue-600 text-white p-5 rounded-2xl shadow-xl hover:bg-blue-700 active:scale-90 transition-all"><Plus size={24} strokeWidth={3}/></button>
+                                            <input type="text" className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-5 outline-none focus:border-blue-500 transition-all font-bold shadow-inner" placeholder="เสนอชื่อสถานที่..." value={newLocationName} onChange={e => setNewLocationName(e.target.value)} />
+                                            <button onClick={() => { if(!newLocationName) return; setData({...data, destinations:[...(data.destinations||[]), {id:Date.now(), name:newLocationName, votes:[userName]}]}); setNewLocationName(''); }} className="bg-blue-600 text-white p-5 rounded-2xl shadow-xl hover:bg-blue-700 transition-all"><Plus size={24} strokeWidth={3}/></button>
                                         </div>
                                         <div className="grid grid-cols-1 gap-4">
-                                            {data.destinations.map(dest => (
+                                            {(data.destinations || []).map(dest => (
                                                 <div key={dest.id} className="flex items-center justify-between p-6 bg-slate-50 rounded-3xl border-2 border-white shadow-sm font-black hover:shadow-md transition-all">
                                                     <span className="text-slate-700 text-lg">{dest.name}</span>
                                                     <button onClick={() => { const newData={...data}; newData.destinations = newData.destinations.map(d => d.id === dest.id ? {...d, votes: (d.votes||[]).includes(userName) ? d.votes.filter(u=>u!==userName) : [...(d.votes||[]), userName]} : d); setData(newData); }} className={`p-4 rounded-2xl transition-all ${ (dest.votes||[]).includes(userName) ? 'bg-blue-600 text-white shadow-xl scale-110' : 'bg-white text-slate-300 border border-slate-100' }`}><ThumbsUp size={24}/></button>
@@ -319,7 +316,7 @@
                                             ))}
                                         </div>
                                     </div>
-                                    <button onClick={() => syncToCloud(data, true)} disabled={isSaving} className="w-full bg-gradient-to-r from-green-600 to-emerald-500 text-white font-black py-6 rounded-[2rem] shadow-2xl shadow-green-200 transform active:scale-95 transition-all text-xl">
+                                    <button onClick={() => syncToCloud(data, true)} disabled={isSaving} className="w-full bg-gradient-to-r from-green-600 to-emerald-500 text-white font-black py-6 rounded-[2rem] shadow-2xl transform active:scale-95 transition-all text-xl">
                                         {isSaving ? "กำลังบันทึก..." : "เสร็จสิ้นการโหวตทั้งหมด 🥂"}
                                     </button>
                                 </div>
@@ -329,13 +326,13 @@
                 );
             };
 
-            // เริ่มต้นการเรนเดอร์ React
-            const root = ReactDOM.createRoot(document.getElementById('root'));
+            // สร้าง Root และเรนเดอร์
+            const root = ReactDOM.createRoot(container);
             root.render(<App />);
         };
 
-        // เรียกใช้งาน Safe Boot
-        window.addEventListener('load', runTripBuddy);
+        // เริ่มรันแอปหลังจากเบราว์เซอร์โหลดพื้นฐานเสร็จ
+        window.onload = initApp;
     </script>
 </body>
 </html>
