@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TripBuddy - Input System</title>
     
-    <!-- Fast CDN Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.min.js"></script>
@@ -32,11 +31,11 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800">
+<body class="bg-slate-50 text-slate-800 text-sm">
     <div id="boot-loader">
         <div class="text-center">
-            <div class="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-            <p class="font-bold text-slate-400 text-[9px] tracking-widest uppercase">TripBuddy</p>
+            <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+            <p class="font-bold text-slate-400 text-[10px] tracking-widest uppercase">TripBuddy</p>
         </div>
     </div>
 
@@ -46,10 +45,7 @@
         const html = htm.bind(React.createElement);
         const { useState, useEffect, useMemo, useCallback } = React;
 
-        /**
-         * Safe Icon Component (Inline SVG) - Adjusted for Mini Size
-         */
-        const Icon = ({ name, size = 16, className = "" }) => {
+        const Icon = ({ name, size = 18, className = "" }) => {
             const icons = {
                 MapPin: html`<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>`,
                 Sun: html`<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>`,
@@ -67,8 +63,9 @@
                 Clock: html`<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>`,
                 Home: html`<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>`
             };
+            // บังคับขนาดไอคอนด้วย style เพื่อป้องกันปัญหาไอคอนใหญ่
             return html`
-                <svg xmlns="http://www.w3.org/2000/svg" width=${size} height=${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0 ${className}">
+                <svg xmlns="http://www.w3.org/2000/svg" width=${size} height=${size} style=${{width: size+'px', height: size+'px'}} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0 ${className}">
                     ${icons[name] || null}
                 </svg>
             `;
@@ -156,72 +153,70 @@
                 return html`
                     <div class="min-h-screen bg-fun-gradient flex items-center justify-center p-4">
                         <div class="max-w-md w-full bg-white/90 backdrop-blur-xl rounded-[2.5rem] shadow-2xl p-10 border border-white text-center relative overflow-hidden">
-                            <div class="absolute top-0 right-0 p-4 opacity-10 rotate-12"><${Icon} name="Sun" size="44" className="text-orange-400" /></div>
-                            <div class="absolute bottom-0 left-0 p-4 opacity-10 -rotate-12"><${Icon} name="Palmtree" size="44" className="text-green-400" /></div>
+                            <div class="absolute top-0 right-0 p-4 opacity-10 rotate-12"><${Icon} name="Sun" size="64" className="text-orange-400" /></div>
+                            <div class="absolute bottom-0 left-0 p-4 opacity-10 -rotate-12"><${Icon} name="Palmtree" size="64" className="text-green-400" /></div>
                             
-                            <div class="relative inline-block mb-8">
-                                <div class="bg-gradient-to-tr from-blue-600 to-cyan-400 w-16 h-16 rounded-[1.25rem] flex items-center justify-center mx-auto shadow-2xl animate-float">
-                                    <${Icon} name="MapPin" size="28" className="text-white" />
-                                </div>
-                                <div class="absolute -top-1 -right-1 bg-yellow-400 p-1.5 rounded-full shadow-lg animate-bounce">
-                                    <${Icon} name="Sparkles" size="12" className="text-white" />
+                            <div class="relative inline-block mb-6">
+                                <div class="bg-gradient-to-tr from-blue-600 to-cyan-400 w-20 h-20 rounded-[1.5rem] flex items-center justify-center mx-auto shadow-2xl animate-float">
+                                    <${Icon} name="MapPin" size="36" className="text-white" />
                                 </div>
                             </div>
-                            <h1 class="text-2xl font-black text-slate-800 mb-2 tracking-tight leading-tight">ไปเที่ยวกัน! 🌴</h1>
-                            <p class="text-slate-500 mb-8 font-bold italic tracking-wide text-[11px] leading-relaxed">ร่วมกันวางแผนทริปที่สนุกที่สุด</p>
+                            <h1 class="text-3xl font-black text-slate-800 mb-2 tracking-tight leading-tight">ไปเที่ยวกัน! 🌴</h1>
+                            <p class="text-slate-500 mb-8 font-bold italic tracking-wide text-xs leading-relaxed">ร่วมกันวางแผนทริปที่สนุกที่สุด</p>
                             <div class="space-y-4 relative z-10">
-                                <input type="text" class="w-full px-6 py-4 rounded-2xl border-2 border-slate-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 outline-none transition-all text-center text-base font-extrabold shadow-inner bg-white" placeholder="ระบุชื่อเล่นของคุณ" value=${userName} onChange=${e => setUserName(e.target.value)} onKeyDown=${e => e.key === 'Enter' && userName && setIsLoggedIn(true)} />
-                                <button onClick=${() => userName && setIsLoggedIn(true)} class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black py-4 rounded-2xl hover:shadow-2xl shadow-blue-200 transform active:scale-95 transition-all text-base font-bold">ออกเดินทางเลย! 🚀</button>
+                                <input type="text" class="w-full px-8 py-5 rounded-3xl border-2 border-slate-100 focus:border-blue-500 focus:ring-8 focus:ring-blue-500/5 outline-none transition-all text-center text-xl font-extrabold shadow-inner bg-white" placeholder="ระบุชื่อเล่นของคุณ" value=${userName} onChange=${e => setUserName(e.target.value)} onKeyDown=${e => e.key === 'Enter' && userName && setIsLoggedIn(true)} />
+                                <button onClick=${() => userName && setIsLoggedIn(true)} class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black py-5 rounded-3xl hover:shadow-2xl shadow-blue-200 transform active:scale-95 transition-all text-xl font-bold">ออกเดินทางเลย! 🚀</button>
                             </div>
                         </div>
                     </div>`;
             }
 
             return html`
-                <div class="min-h-screen bg-slate-50 pb-24 text-slate-700">
+                <div class="min-h-screen bg-slate-50 pb-32 text-slate-700">
                     ${showSuccessModal && html`
                         <div class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 text-center">
-                            <div class="bg-white rounded-[2rem] p-10 max-w-xs w-full shadow-2xl border border-slate-100 animate-in fade-in zoom-in duration-300">
+                            <div class="bg-white rounded-[2.5rem] p-10 max-w-sm w-full shadow-2xl border border-slate-100 animate-in fade-in zoom-in duration-300">
                                 <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600 shadow-inner">
-                                    <${Icon} name="CheckCircle" size="32" />
+                                    <${Icon} name="CheckCircle" size="36" />
                                 </div>
-                                <h3 class="text-xl font-black text-slate-800 mb-2 tracking-tight leading-tight">สำเร็จ!</h3>
-                                <p class="text-slate-500 text-[11px] mb-8 font-medium leading-relaxed">ข้อมูลของคุณเข้ากลุ่มเรียบร้อยแล้ว</p>
-                                <button onClick=${() => setShowSuccessModal(false)} class="w-full bg-slate-100 hover:bg-slate-200 py-3 rounded-xl font-black text-slate-700 transition-colors text-sm">ตกลง</button>
+                                <h3 class="text-2xl font-black text-slate-800 mb-3 tracking-tight">สำเร็จแล้ว!</h3>
+                                <p class="text-slate-500 text-sm mb-10 font-medium leading-relaxed">บันทึกข้อมูลของคุณเข้ากลุ่มเรียบร้อยแล้ว</p>
+                                <button onClick=${() => setShowSuccessModal(false)} class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-black transition-colors text-lg shadow-xl shadow-blue-100">ตกลง</button>
                             </div>
                         </div>`}
-                    <header class="bg-white/80 backdrop-blur-md border-b p-3 sticky top-0 z-50 flex justify-between items-center shadow-sm px-5">
-                        <div class="flex items-center gap-1.5 font-black text-blue-600 uppercase tracking-tighter text-base leading-none">
-                            <${Icon} name="MapPin" size="16" /> Trip Buddy
+                    <header class="bg-white/80 backdrop-blur-md border-b p-4 sticky top-0 z-50 flex justify-between items-center shadow-sm px-6">
+                        <div class="flex items-center gap-2 font-black text-blue-600 uppercase tracking-tighter text-lg leading-none">
+                            <${Icon} name="MapPin" size="20" /> Trip Buddy
                         </div>
-                        <div class="flex items-center gap-2.5">
-                            <div class="text-[10px] font-black bg-blue-50 px-3 py-1 rounded-full text-blue-600 border border-blue-100 shadow-sm">${userName}</div>
-                            <button onClick=${() => setIsLoggedIn(false)} class="text-slate-300 hover:text-red-500 transition-colors p-1.5"><${Icon} name="LogOut" size="14"/></button>
+                        <div class="flex items-center gap-4 text-xs font-black">
+                            <div class="bg-blue-50 px-4 py-1.5 rounded-full text-blue-600 border border-blue-100 shadow-sm">${userName}</div>
+                            <button onClick=${() => setIsLoggedIn(false)} class="text-slate-300 hover:text-red-500 transition-colors p-2"><${Icon} name="LogOut" size="18"/></button>
                         </div>
                     </header>
-                    <main class="p-4 md:p-8 max-w-2xl mx-auto space-y-6">
-                        <div class="flex bg-white p-1.5 rounded-2xl border shadow-sm gap-1">
-                            <button onClick=${() => setActiveTab('availability')} class=${`flex-1 py-3 rounded-xl font-black transition-all text-xs ${activeTab === 'availability' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}>1. ลงวันว่าง</button>
-                            <button onClick=${() => setActiveTab('vote')} class=${`flex-1 py-3 rounded-xl font-black transition-all text-xs ${activeTab === 'vote' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}>2. โหวตสไตล์</button>
+                    <main class="p-4 md:p-10 max-w-3xl mx-auto space-y-8">
+                        <div class="flex bg-white p-2 rounded-[2rem] border shadow-sm gap-2">
+                            <button onClick=${() => setActiveTab('availability')} class=${`flex-1 py-4 rounded-3xl font-black transition-all text-sm ${activeTab === 'availability' ? 'bg-blue-600 text-white shadow-xl shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}>1. ลงวันว่าง</button>
+                            <button onClick=${() => setActiveTab('vote')} class=${`flex-1 py-4 rounded-3xl font-black transition-all text-sm ${activeTab === 'vote' ? 'bg-blue-600 text-white shadow-xl shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}>2. โหวตสไตล์ & ที่เที่ยว</button>
                         </div>
+
                         ${activeTab === 'availability' ? html`
-                            <div class="bg-white p-6 rounded-[2rem] border shadow-sm space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <div class="flex justify-between items-center flex-wrap gap-4">
-                                    <h2 class="font-black text-base tracking-tight text-slate-800 leading-tight">ระบุตารางเวลา</h2>
-                                    <div class="flex items-center gap-1.5 bg-slate-50 p-1 rounded-xl border text-[11px] font-black">
-                                        <button onClick=${() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth()-1))} class="p-1 hover:bg-white rounded-lg transition-colors shadow-sm"><${Icon} name="ChevronLeft" size="12"/></button>
-                                        <span class="w-24 text-center text-slate-700 font-bold">${months[viewMonth.getMonth()]} ${viewMonth.getFullYear()+543}</span>
-                                        <button onClick=${() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth()+1))} class="p-1 hover:bg-white rounded-lg transition-colors shadow-sm"><${Icon} name="ChevronRight" size="12"/></button>
+                            <div class="bg-white p-8 rounded-[3rem] border shadow-sm space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                <div class="flex justify-between items-center flex-wrap gap-6">
+                                    <h2 class="font-black text-xl tracking-tight text-slate-800 leading-tight">ระบุตารางเวลาของคุณ</h2>
+                                    <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-2xl border text-sm font-black">
+                                        <button onClick=${() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth()-1))} class="p-2 hover:bg-white rounded-xl transition-colors shadow-sm"><${Icon} name="ChevronLeft" size={16}/></button>
+                                        <span class="w-32 text-center text-slate-700 font-extrabold text-base">${months[viewMonth.getMonth()]} ${viewMonth.getFullYear()+543}</span>
+                                        <button onClick=${() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth()+1))} class="p-2 hover:bg-white rounded-xl transition-colors shadow-sm"><${Icon} name="ChevronRight" size={16}/></button>
                                     </div>
                                 </div>
-                                <div class="bg-blue-50 p-4 rounded-2xl flex gap-3 text-xs text-blue-800 border border-blue-100 shadow-inner font-medium italic leading-relaxed">
-                                    <${Icon} name="Info" size="14" className="text-blue-600 shrink-0"/>
-                                    <div class="text-[10px]">คลิก 1 ครั้ง = <strong>ว่าง</strong> | 2 ครั้ง = <strong>ติดธุระ</strong></div>
+                                <div class="bg-blue-50 p-5 rounded-[2rem] flex gap-4 text-xs text-blue-800 border border-blue-100 shadow-inner font-bold leading-relaxed">
+                                    <${Icon} name="Info" size="20" className="text-blue-600 shrink-0"/>
+                                    <div class="text-sm italic">คลิก 1 ครั้ง = <strong class="text-blue-600">ว่าง (น้ำเงิน)</strong> | 2 ครั้ง = <strong class="text-red-500">ติดธุระ (แดง)</strong></div>
                                 </div>
-                                <div class="grid grid-cols-7 gap-1 text-center font-black text-[9px] text-slate-300 uppercase tracking-[0.1em] mb-1">
-                                    ${['อา','จ','อ','พ','พฤ','ศ','ส'].map(d => html`<div key=${d} class="py-1">${d}</div>`)}
+                                <div class="grid grid-cols-7 gap-2 text-center font-black text-xs text-slate-300 uppercase tracking-[0.2em] mb-4">
+                                    ${['อา','จ','อ','พ','พฤ','ศ','ส'].map(d => html`<div key=${d} class="py-2">${d}</div>`)}
                                 </div>
-                                <div class="grid grid-cols-7 gap-2">
+                                <div class="grid grid-cols-7 gap-3">
                                     ${Array(viewMonth.getDay()).fill(null).map((_, i) => html`<div key=${`e-${i}`}/>`)}
                                     ${daysInMonth.map(date => {
                                         const dStr = date.toISOString().split('T')[0];
@@ -229,55 +224,76 @@
                                         const isAvail = user && (user.available || []).includes(dStr);
                                         const isBusy = user && (user.busy || []).includes(dStr);
                                         return html`
-                                            <button key=${dStr} onClick=${() => toggleDateStatus(dStr)} class=${`aspect-square rounded-[1rem] border-2 flex items-center justify-center font-extrabold text-xs transition-all transform active:scale-90 ${isAvail ? 'bg-blue-600 border-blue-600 text-white shadow-xl shadow-blue-100' : isBusy ? 'bg-red-500 border-red-500 text-white shadow-xl shadow-red-100' : 'bg-white border-slate-100 text-slate-400 hover:border-blue-200'}`}>
+                                            <button key=${dStr} onClick=${() => toggleDateStatus(dStr)} class=${`aspect-square rounded-2xl border-2 flex items-center justify-center font-black text-lg transition-all transform active:scale-90 ${isAvail ? 'bg-blue-600 border-blue-600 text-white shadow-2xl shadow-blue-200' : isBusy ? 'bg-red-500 border-red-500 text-white shadow-2xl shadow-red-200' : 'bg-white border-slate-100 text-slate-400 hover:border-blue-200'}`}>
                                                 ${date.getDate()}
                                             </button>`;
                                     })}
                                 </div>
-                                <div class="pt-6 border-t text-center">
-                                    <button onClick=${() => syncToCloud(data, true)} disabled=${isSaving} class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 shadow-2xl transition-all active:scale-95 disabled:opacity-50 text-base font-bold leading-none">
-                                        ${isSaving ? html`<div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>` : html`<${Icon} name="Check" size="16" /> ยืนยันข้อมูลวันว่าง`}
+                                <div class="pt-8 border-t text-center">
+                                    <button onClick=${() => syncToCloud(data, true)} disabled=${isSaving} class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-5 rounded-3xl flex items-center justify-center gap-3 shadow-2xl shadow-green-100 transition-all active:scale-95 disabled:opacity-50 text-xl font-black leading-none">
+                                        ${isSaving ? html`<div class="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>` : html`<${Icon} name="Check" size="24" /> ยืนยันข้อมูลวันว่าง`}
                                     </button>
                                 </div>
                             </div>` : html`
-                            <div class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <div class="bg-white p-6 rounded-[2rem] border shadow-sm space-y-6">
-                                    <h2 class="font-black text-base flex items-center gap-2 text-slate-800 tracking-tight leading-tight"><${Icon} name="Users" size="16" className="text-blue-600"/> สไตล์ที่คุณชอบ</h2>
-                                    <div class="space-y-6">
+                            <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                <div class="bg-white p-8 rounded-[3rem] border shadow-sm space-y-8">
+                                    <h2 class="font-black text-xl flex items-center gap-3 text-slate-800 tracking-tight leading-tight"><${Icon} name="Users" size="24" className="text-blue-600"/> สไตล์ทริปที่คุณชอบ</h2>
+                                    <div class="space-y-8 text-sm">
                                         <div>
-                                            <h3 class="text-[10px] font-black text-slate-400 mb-3 uppercase tracking-[0.1em] flex items-center gap-1.5"><${Icon} name="Clock" size="12" /> ระยะเวลาทริป</h3>
-                                            <div class="grid grid-cols-2 gap-2.5">
-                                                ${["1 วัน", "2 วัน 1 คืน", "3 วัน 2 คืน", "4 วัน 3 คืน"].map(opt => html`
-                                                    <button key=${opt} onClick=${() => handleVote('duration', opt)} class=${`p-4 rounded-xl border-2 text-xs font-black text-left transition-all ${ (data.preferences?.durationVotes?.[opt] || []).includes(userName) ? 'bg-blue-600 border-blue-600 text-white shadow-xl shadow-blue-100' : 'bg-slate-50 border-slate-100 hover:bg-slate-100'}`}>${opt}</button>`)}
+                                            <h3 class="text-xs font-black text-slate-400 mb-4 uppercase tracking-[0.2em] flex items-center gap-2"><${Icon} name="Clock" size="16" /> ระยะเวลาทริป</h3>
+                                            <div class="grid grid-cols-2 gap-3">
+                                                ${["1 วัน", "2 วัน 1 คืน", "3 วัน 2 คืน", "4 วัน 3 คืน"].map(opt => {
+                                                    const votes = data.preferences?.durationVotes?.[opt] || [];
+                                                    const isMe = votes.includes(userName);
+                                                    return html`
+                                                    <button key=${opt} onClick=${() => handleVote('duration', opt)} class=${`relative p-5 rounded-[1.25rem] border-2 text-base font-black text-left transition-all ${ isMe ? 'bg-blue-600 border-blue-600 text-white shadow-xl shadow-blue-100' : 'bg-slate-50 border-slate-100 hover:bg-slate-100'}`}>
+                                                        ${opt}
+                                                        ${votes.length > 0 && html`<span class=${`absolute top-2 right-2 px-2 py-0.5 rounded-full text-[9px] font-black ${isMe ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-600'}`}>${votes.length} โหวต</span>`}
+                                                    </button>`;
+                                                })}
                                             </div>
                                         </div>
                                         <div>
-                                            <h3 class="text-[10px] font-black text-slate-400 mb-3 uppercase tracking-[0.1em] flex items-center gap-1.5"><${Icon} name="Home" size="12" /> ประเภทที่พัก</h3>
-                                            <div class="grid grid-cols-2 gap-2.5">
-                                                ${['โรงแรม', 'กางเต็นท์', 'Pool Villa', 'โฮมสเตย์', 'รีสอร์ท'].map(opt => html`
-                                                    <button key=${opt} onClick=${() => handleVote('accommodation', opt)} class=${`p-4 rounded-xl border-2 text-xs font-black text-left transition-all ${ (data.preferences?.accommodationVotes?.[opt] || []).includes(userName) ? 'bg-blue-600 border-blue-600 text-white shadow-xl shadow-blue-100' : 'bg-slate-50 border-slate-100 hover:bg-slate-100'}`}>${opt}</button>`)}
+                                            <h3 class="text-xs font-black text-slate-400 mb-4 uppercase tracking-[0.2em] flex items-center gap-2"><${Icon} name="Home" size="16" /> รูปแบบที่พัก</h3>
+                                            <div class="grid grid-cols-2 gap-3">
+                                                ${['โรงแรมหรู', 'กางเต็นท์', 'Pool Villa', 'โฮมสเตย์', 'รีสอร์ท/วิลล่า'].map(opt => {
+                                                    const votes = data.preferences?.accommodationVotes?.[opt] || [];
+                                                    const isMe = votes.includes(userName);
+                                                    return html`
+                                                    <button key=${opt} onClick=${() => handleVote('accommodation', opt)} class=${`relative p-5 rounded-[1.25rem] border-2 text-base font-black text-left transition-all ${ isMe ? 'bg-blue-600 border-blue-600 text-white shadow-xl shadow-blue-100' : 'bg-slate-50 border-slate-100 hover:bg-slate-100'}`}>
+                                                        ${opt}
+                                                        ${votes.length > 0 && html`<span class=${`absolute top-2 right-2 px-2 py-0.5 rounded-full text-[9px] font-black ${isMe ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-600'}`}>${votes.length} โหวต</span>`}
+                                                    </button>`;
+                                                })}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="bg-white p-6 rounded-[2rem] border shadow-sm space-y-6">
-                                    <h2 class="font-black text-base flex items-center gap-2 text-slate-800 tracking-tight leading-tight"><${Icon} name="Palmtree" size="16" className="text-green-500"/> เสนอที่เที่ยว & โหวต</h2>
-                                    <div class="flex gap-2">
-                                        <input type="text" class="flex-1 bg-slate-50 border-2 border-slate-100 rounded-xl px-5 py-3.5 outline-none focus:border-blue-500 transition-all font-bold shadow-inner text-xs" placeholder="เสนอชื่อสถานที่..." value=${newLocationName} onChange=${e => setNewLocationName(e.target.value)} />
-                                        <button onClick=${() => { if(!newLocationName) return; const newData={...data, destinations:[...(data.destinations||[]), {id:Date.now(), name:newLocationName, votes:[userName]}]}; setData(newData); setNewLocationName(''); }} class="bg-blue-600 text-white p-3.5 rounded-xl shadow-xl hover:bg-blue-700 active:scale-90 transition-all"><${Icon} name="Plus" size="14" /></button>
+                                <div class="bg-white p-8 rounded-[3rem] border shadow-sm space-y-8">
+                                    <h2 class="font-black text-xl flex items-center gap-3 text-slate-800 tracking-tight leading-tight"><${Icon} name="Palmtree" size="24" className="text-green-500"/> เสนอสถานที่ที่อยากไป</h2>
+                                    <div class="flex flex-col sm:flex-row gap-3">
+                                        <input type="text" class="flex-1 bg-slate-50 border-2 border-slate-100 rounded-[1.25rem] px-6 py-4 outline-none focus:border-blue-500 transition-all font-black shadow-inner text-lg" placeholder="ใส่ชื่อสถานที่..." value=${newLocationName} onChange=${e => setNewLocationName(e.target.value)} />
+                                        <button onClick=${() => { if(!newLocationName) return; const newData={...data, destinations:[...(data.destinations||[]), {id:Date.now(), name:newLocationName, votes:[userName]}]}; setData(newData); setNewLocationName(''); }} class="bg-blue-600 text-white px-6 py-4 rounded-[1.25rem] shadow-xl hover:bg-blue-700 active:scale-90 transition-all font-black text-lg flex items-center justify-center gap-2"><${Icon} name="Plus" size="20" /> เพิ่ม</button>
                                     </div>
-                                    <div class="grid grid-cols-1 gap-3">
-                                        ${(data.destinations || []).map(dest => html`
-                                            <div key=${dest.id} class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border-2 border-white shadow-sm font-black hover:shadow-md transition-all group">
-                                                <span class="text-slate-700 text-sm font-black leading-tight">${dest.name}</span>
-                                                <button onClick=${() => { const newData={...data}; newData.destinations = newData.destinations.map(d => d.id === dest.id ? {...d, votes: (Array.isArray(d.votes) ? d.votes : []).includes(userName) ? d.votes.filter(u=>u!==userName) : [...(Array.isArray(d.votes) ? d.votes : []), userName]} : d); setData(newData); }} class=${`p-3 rounded-xl transition-all ${ (Array.isArray(dest.votes) ? dest.votes : []).includes(userName) ? 'bg-blue-600 text-white shadow-xl scale-105' : 'bg-white text-slate-300 border border-slate-100' }`}><${Icon} name="ThumbsUp" size="14"/></button>
-                                            </div>`)}
+                                    <div class="grid grid-cols-1 gap-4">
+                                        ${(data.destinations || []).map(dest => {
+                                            const votes = dest.votes || [];
+                                            const isMe = votes.includes(userName);
+                                            return html`
+                                            <div key=${dest.id} class="flex items-center justify-between p-6 bg-slate-50 rounded-[1.5rem] border-2 border-white shadow-sm font-black hover:shadow-md transition-all group">
+                                                <div class="flex flex-col">
+                                                    <span class="text-slate-700 text-lg font-black leading-tight">${dest.name}</span>
+                                                    <span class="text-[10px] text-blue-500 font-bold mt-1">${votes.length} คนอยากไปที่นี่</span>
+                                                </div>
+                                                <button onClick=${() => { const newData={...data}; newData.destinations = newData.destinations.map(d => d.id === dest.id ? {...d, votes: votes.includes(userName) ? votes.filter(u=>u!==userName) : [...votes, userName]} : d); setData(newData); }} class=${`p-4 rounded-2xl transition-all ${ isMe ? 'bg-blue-600 text-white shadow-xl scale-110' : 'bg-white text-slate-300 border border-slate-100 shadow-sm' }`}><${Icon} name="ThumbsUp" size="22"/></button>
+                                            </div>`;
+                                        })}
                                     </div>
                                 </div>
 
-                                <button onClick=${() => syncToCloud(data, true)} disabled=${isSaving} class="w-full bg-gradient-to-r from-green-600 to-emerald-500 text-white font-black py-4.5 rounded-[1.5rem] shadow-2xl transform active:scale-95 transition-all text-base font-bold leading-none">
-                                    ${isSaving ? "กำลังบันทึก..." : "เสร็จสิ้นการโหวตทั้งหมด 🥂"}
+                                <button onClick=${() => syncToCloud(data, true)} disabled=${isSaving} class="w-full bg-gradient-to-r from-green-600 to-emerald-500 text-white font-black py-6 rounded-[2.5rem] shadow-2xl transform active:scale-95 transition-all text-2xl font-black leading-none flex items-center justify-center gap-3">
+                                    ${isSaving ? html`<div class="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>` : html`<${Icon} name="CheckCircle" size="28" /> ยืนยันการโหวตทั้งหมด 🥂`}
                                 </button>
                             </div>`}
                     </main>
