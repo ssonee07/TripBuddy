@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TripBuddy - วางแผนทริปกัน!</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700;800&display=swap');
+        body { font-family: 'Sarabun', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes float { 0%, 100% { transform: translateY(0px) rotate(2deg); } 50% { transform: translateY(-6px) rotate(-1deg); } }
+        .animate-float { animation: float 4s ease-in-out infinite; }
+        .bg-cute { background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 text-sm">
+    <div id="boot-loader" style="position:fixed;inset:0;z-index:99;display:flex;align-items:center;justify-content:center;background:#f8fafc;transition:opacity 0.4s">
+        <div class="text-center">
+            <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+            <p class="font-bold text-slate-400 text-[10px] uppercase tracking-widest">TripBuddy Loading...</p>
+        </div>
+    </div>
+
+    <div id="root"></div>
+
+    <script>
+        const html = htm.bind(React.createElement);
+        const { useState, useEffect, useMemo, useCallback } = React;
+
+        const Icon = ({ name, size = 18, className = "" }) => {
+            const icons = {
+                MapPin: html`<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>`,
+                Sun: html`<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>`,
+                Palmtree: html`<path d="M13 8c0-2.76-2.46-5-5.5-5S2 5.24 2 8h2l1-1 1 1h4"/><path d="M13 7.14A5.82 5.82 0 0 1 16.5 6c3.04 0 5.5 2.24 5.5 5h-3l-1 1-1-1h-3"/><path d="M11 15.5c.5 2.5-.5 4.5-2.5 6.5"/><path d="M13 15.5c-.5 2.5.5 4.5 2.5 6.5"/>`,
+                Sparkles: html`<path d="m12 3 1.91 5.81L20 10.73l-4.73 4.49L16.36 21 12 18.27 7.64 21l1.09-5.78L4 10.73l6.09-1.92L12 3Z"/>`,
+                CheckCircle: html`<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>`,
+                ChevronLeft: html`<polyline points="15 18 9 12 15 6"/>`,
+                ChevronRight: html`<polyline points="9 18 15 12 9 6"/>`,
+                Info: html`<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/>`,
+                Check: html`<polyline points="20 6 9 17 4 12"/>`,
+                Users: html`<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`,
+                Plus: html`<line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/>`,
+                ThumbsUp: html`<path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"/>`,
+                Clock: html`<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>`,
+                Home: html`<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>`
+            };
+            return html`
+                <svg xmlns="http://www.w3.org/2000/svg" width=${size} height=${size} style=${{width: size+'px', height: size+'px'}} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0 ${className}">
+                    ${icons[name] || null}
+                </svg>`;
+        };
+
+        // === ระบุ URL ของคุณที่นี่ ===
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbz5nukgyV2w5goNKakjYkKrtWvk9l6MUgAg_WCJyhlKlexWgxf8ifS6YtjNXuIesm4t/exec"; 
+
+        const App = () => {
+            const [userName, setUserName] = useState('');
+            const [isLoggedIn, setIsLoggedIn] = useState(false);
+            const [activeTab, setActiveTab] = useState('styles');
+            const [isSaving, setIsSaving] = useState(false);
+            const [showSuccess, setShowSuccess] = useState(false);
+            const [newPlace, setNewPlace] = useState('');
+            const [viewMonth, setViewMonth] = useState(new Date(2026, 0, 1));
+            
+            const [data, setData] = useState({ 
+                availabilities: [], 
+                destinations: [], 
+                preferences: { durationVotes: {}, accommodationVotes: {} } 
+            });
+
+            useEffect(() => {
+                const loader = document.getElementById('boot-loader');
+                if (loader) { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 400); }
+            }, []);
+
+            const fetchData = useCallback(async () => {
+                if (!SHEET_URL) return;
+                try {
+                    const res = await fetch(SHEET_URL);
+                    const result = await res.json();
+                    if (result) setData(result);
+                } catch (e) { console.error(e); }
+            }, []);
+
+            useEffect(() => { fetchData(); }, [fetchData]);
+
+            const syncToCloud = async () => {
+                if (!SHEET_URL) return;
+                setIsSaving(true);
+                try {
+                    await fetch(SHEET_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ type: 'UPDATE_ALL', data: data }) });
+                    setShowSuccess(true);
+                    setTimeout(() => setShowSuccess(false), 3000);
+                } catch (e) { console.error(e); }
+                finally { setIsSaving(false); }
+            };
+
+            const toggleDate = (dateStr) => {
+                const newData = { ...data };
+                let user = (newData.availabilities || []).find(a => a.name === userName);
+                if (!user) {
+                    user = { name: userName, available: [dateStr], busy: [] };
+                    newData.availabilities = [...(newData.availabilities || []), user];
+                } else {
+                    const isAvail = (user.available || []).includes(dateStr);
+                    const isBusy = (user.busy || []).includes(dateStr);
+                    if (!isAvail && !isBusy) user.available = [...(user.available || []), dateStr];
+                    else if (isAvail) { user.available = user.available.filter(d => d !== dateStr); user.busy = [...(user.busy || []), dateStr]; }
+                    else user.busy = (user.busy || []).filter(d => d !== dateStr);
+                }
+                setData(newData);
+            };
+
+            const toggleVote = (cat, val) => {
+                const newData = { ...data };
+                if (!newData.preferences) newData.preferences = { durationVotes: {}, accommodationVotes: {} };
+                const field = cat === 'dur' ? 'durationVotes' : 'accommodationVotes';
+                const votes = newData.preferences[field][val] || [];
+                newData.preferences[field][val] = votes.includes(userName) ? votes.filter(u => u !== userName) : [...votes, userName];
+                setData(newData);
+            };
+
+            const daysInMonth = useMemo(() => {
+                const d = new Date(viewMonth.getFullYear(), viewMonth.getMonth(), 1);
+                const days = [];
+                while (d.getMonth() === viewMonth.getMonth()) { days.push(new Date(d)); d.setDate(d.getDate() + 1); }
+                return days;
+            }, [viewMonth]);
+
+            if (!isLoggedIn) {
+                return html`
+                <div class="min-h-screen bg-cute flex items-center justify-center p-4">
+                    <div class="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-10 text-center relative overflow-hidden border border-white">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 rotate-12"><${Icon} name="Sun" size="64" className="text-orange-400" /></div>
+                        <div class="absolute bottom-0 left-0 p-4 opacity-10 -rotate-12"><${Icon} name="Palmtree" size="64" className="text-green-400" /></div>
+                        <div class="bg-blue-500 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg animate-float">
+                            <${Icon} name="MapPin" size="32" className="text-white" />
+                        </div>
+                        <h1 class="text-2xl font-black text-slate-800 mb-2">เที่ยวไหนดี?</h1>
+                        <p class="text-slate-400 mb-8 text-xs font-bold uppercase tracking-widest">Group Trip Planner</p>
+                        <input type="text" class="w-full px-6 py-4 rounded-2xl border-2 border-slate-100 focus:border-blue-400 outline-none text-center font-bold text-lg mb-4" placeholder="ใส่ชื่อเล่นของคุณ" value=${userName} onChange=${e => setUserName(e.target.value)} />
+                        <button onClick=${() => userName && setIsLoggedIn(true)} class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-xl transform active:scale-95 transition-all">ไปกันเลย! 🚀</button>
+                    </div>
+                </div>`;
+            }
+
+            return html`
+                <div class="min-h-screen bg-slate-50 pb-24">
+                    ${showSuccess && html`
+                    <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+                        <div class="bg-white rounded-[2rem] p-8 text-center shadow-2xl animate-in zoom-in duration-300">
+                            <div class="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4"><${Icon} name="CheckCircle" size="32" /></div>
+                            <h3 class="font-black text-xl mb-2">บันทึกเรียบร้อย!</h3>
+                            <p class="text-slate-400 text-xs mb-6">ข้อมูลของคุณเข้าสู่ระบบแล้วครับ</p>
+                            <button onClick=${() => setShowSuccess(false)} class="w-full bg-slate-100 py-3 rounded-xl font-bold">ปิด</button>
+                        </div>
+                    </div>`}
+
+                    <header class="bg-white/80 backdrop-blur-md border-b p-4 sticky top-0 z-40 flex justify-between items-center shadow-sm">
+                        <div class="flex items-center gap-2 font-black text-blue-600 uppercase text-base tracking-tighter"><${Icon} name="MapPin" size="20" /> Trip Buddy</div>
+                        <div class="bg-blue-50 px-3 py-1 rounded-full text-[10px] font-black text-blue-600 border border-blue-100">สวัสดี, ${userName}</div>
+                    </header>
+
+                    <main class="p-4 max-w-2xl mx-auto space-y-6">
+                        <div class="flex bg-white p-1.5 rounded-2xl border shadow-sm">
+                            <button onClick=${() => setActiveTab('styles')} class=${`flex-1 py-3 rounded-xl font-black text-xs transition-all ${activeTab === 'styles' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400'}`}>1. สไตล์ทริป</button>
+                            <button onClick=${() => setActiveTab('places')} class=${`flex-1 py-3 rounded-xl font-black text-xs transition-all ${activeTab === 'places' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400'}`}>2. ที่เที่ยว</button>
+                            <button onClick=${() => setActiveTab('days')} class=${`flex-1 py-3 rounded-xl font-black text-xs transition-all ${activeTab === 'days' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400'}`}>3. วันว่าง</button>
+                        </div>
+
+                        ${activeTab === 'styles' && html`
+                        <div class="bg-white p-6 rounded-[2rem] border shadow-sm space-y-8 animate-in slide-in-from-bottom-4 duration-500">
+                            <div class="space-y-6">
+                                <div>
+                                    <h3 class="text-xs font-black text-slate-300 uppercase tracking-widest mb-4 flex items-center gap-2"><${Icon} name="Clock" size="14" /> ระยะเวลาที่อยากไป</h3>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        ${["1 วัน", "2 วัน 1 คืน", "3 วัน 2 คืน", "4 วัน 3 คืน"].map(opt => html`
+                                        <button onClick=${() => toggleVote('dur', opt)} class=${`p-4 rounded-2xl border-2 text-sm font-bold text-left transition-all ${ (data.preferences?.durationVotes?.[opt] || []).includes(userName) ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'bg-slate-50 border-slate-100 hover:bg-slate-100' }`}>${opt}</button>`)}
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 class="text-xs font-black text-slate-300 uppercase tracking-widest mb-4 flex items-center gap-2"><${Icon} name="Home" size="14" /> อยากพักแบบไหน</h3>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        ${['Hotel', 'Hostel', 'Pool Villa', 'Camping'].map(opt => html`
+                                        <button onClick=${() => toggleVote('acc', opt)} class=${`p-4 rounded-2xl border-2 text-sm font-bold text-left transition-all ${ (data.preferences?.accommodationVotes?.[opt] || []).includes(userName) ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg' : 'bg-slate-50 border-slate-100 hover:bg-slate-100' }`}>${opt}</button>`)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`}
+
+                        ${activeTab === 'places' && html`
+                        <div class="bg-white p-6 rounded-[2rem] border shadow-sm space-y-6 animate-in slide-in-from-bottom-4 duration-500">
+                            <div class="flex gap-2">
+                                <input type="text" class="flex-1 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 outline-none focus:border-blue-400 font-bold text-sm" placeholder="เสนอที่เที่ยว/ที่พักที่อยากไป..." value=${newPlace} onChange=${e => setNewPlace(e.target.value)} />
+                                <button onClick=${() => { if(!newPlace) return; setData({...data, destinations:[...(data.destinations||[]), {name:newPlace}]}); setNewPlace(''); }} class="bg-blue-600 text-white p-3 rounded-xl shadow-lg"><${Icon} name="Plus" size="20" /></button>
+                            </div>
+                            <div class="space-y-2">
+                                <p class="text-[10px] font-black text-slate-300 uppercase">รายชื่อที่เพื่อนๆ เสนอ (Anonymous)</p>
+                                ${(data.destinations || []).map(dest => html`
+                                <div class="bg-slate-50 p-4 rounded-2xl border border-white shadow-sm font-bold text-slate-600">${dest.name}</div>`)}
+                            </div>
+                        </div>`}
+
+                        ${activeTab === 'days' && html`
+                        <div class="bg-white p-6 rounded-[2rem] border shadow-sm space-y-6 animate-in slide-in-from-bottom-4 duration-500">
+                            <div class="flex justify-between items-center bg-slate-50 p-2 rounded-xl border border-slate-100">
+                                <button onClick=${() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth()-1))} class="p-1 hover:bg-white rounded-lg"><${Icon} name="ChevronLeft" size="14"/></button>
+                                <span class="font-black text-xs text-slate-700">${viewMonth.toLocaleDateString('th-TH', { month: 'long', year: 'numeric' })}</span>
+                                <button onClick=${() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth()+1))} class="p-1 hover:bg-white rounded-lg"><${Icon} name="ChevronRight" size="14"/></button>
+                            </div>
+                            <div class="grid grid-cols-7 gap-1 text-center mb-1">
+                                ${['อา','จ','อ','พ','พฤ','ศ','ส'].map(d => html`<div class="text-[9px] font-black text-slate-300 uppercase py-1">${d}</div>`)}
+                            </div>
+                            <div class="grid grid-cols-7 gap-2">
+                                ${Array(viewMonth.getDay()).fill(null).map(() => html`<div />`)}
+                                ${daysInMonth.map(date => {
+                                    const dStr = date.toISOString().split('T')[0];
+                                    const user = (data.availabilities || []).find(a => a.name === userName);
+                                    const isAvail = user && (user.available || []).includes(dStr);
+                                    const isBusy = user && (user.busy || []).includes(dStr);
+                                    return html`
+                                    <button onClick=${() => toggleDate(dStr)} class=${`aspect-square rounded-xl border-2 flex items-center justify-center text-xs font-black transition-all ${isAvail ? 'bg-blue-600 border-blue-600 text-white shadow-md' : isBusy ? 'bg-red-500 border-red-500 text-white shadow-md' : 'bg-white border-slate-50 text-slate-300'}`}>${date.getDate()}</button>`})}
+                            </div>
+                            <div class="p-3 bg-blue-50 rounded-xl text-[10px] text-blue-600 italic font-medium leading-relaxed">คลิก 1 ครั้ง = ว่าง | 2 ครั้ง = ไม่ว่าง | 3 ครั้ง = ล้างค่า</div>
+                        </div>`}
+
+                        <button onClick=${syncToCloud} disabled=${isSaving} class="w-full bg-gradient-to-r from-green-600 to-emerald-500 text-white font-black py-4 rounded-2xl shadow-xl shadow-green-100 transform active:scale-95 transition-all text-base mt-4">
+                            ${isSaving ? "กำลังซิงค์ข้อมูล..." : html`<span class="flex items-center justify-center gap-2"><${Icon} name="CheckCircle" size="20" /> ยืนยันและส่งข้อมูลทั้งหมด 🥂</span>`}
+                        </button>
+                    </main>
+                </div>`;
+        };
+
+        ReactDOM.createRoot(document.getElementById('root')).render(html`<${App} />`);
+    </script>
+</body>
+</html>
