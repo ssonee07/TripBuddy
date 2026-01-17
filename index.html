@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TripBuddy - Input System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide-react"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap');
+        body { font-family: 'Sarabun', sans-serif; }
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { 
+            Calendar, MapPin, Users, Plus, CheckCircle, 
+            ChevronRight, ChevronLeft, ThumbsUp, 
+            AlertCircle, Clock, Home, Info, Check, LogOut,
+            Sparkles, Palmtree, Sun
+        } = lucideReact;
+
+        // === ระบุ URL ของคุณที่นี่เพื่อให้เชื่อมกับฐานข้อมูลเดียวกัน ===
+        const HARDCODED_SHEET_URL = "https://script.google.com/macros/s/AKfycbz5nukgyV2w5goNKakjYkKrtWvk9l6MUgAg_WCJyhlKlexWgxf8ifS6YtjNXuIesm4t/exec"; 
+
+        const App = () => {
+            const [userName, setUserName] = React.useState('');
+            const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+            const [activeTab, setActiveTab] = React.useState('availability');
+            const [isSaving, setIsSaving] = React.useState(false);
+            const [showSuccessModal, setShowSuccessModal] = React.useState(false);
+            
+            const [data, setData] = React.useState({
+                availabilities: [], 
+                destinations: [],   
+                preferences: { durationVotes: {}, accommodationVotes: {} }
+            });
+
+            const [newLocationName, setNewLocationName] = React.useState('');
+
+            // Fetch initial data
+            React.useEffect(() => {
+                const fetchData = async () => {
+                    if (!HARDCODED_SHEET_URL) return;
+                    try {
+                        const res = await fetch(HARDCODED_SHEET_URL);
+                        const result = await res.json();
+                        if (result) setData(result);
+                    } catch (e) { console.error("Fetch error:", e); }
+                };
+                fetchData();
+            }, []);
+
+            const syncToCloud = async (newData, showModal = false) => {
+                if (!HARDCODED_SHEET_URL) return;
+                setIsSaving(true);
+                try {
+                    await fetch(HARDCODED_SHEET_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ type: 'UPDATE_ALL', data: newData })
+                    });
+                    if (showModal) {
+                        setShowSuccessModal(true);
+                        setTimeout(() => setShowSuccessModal(false), 3000);
+                    }
+                } catch (e) { console.error("Save error:", e); }
+                finally { setTimeout(() => setIsSaving(false), 800); }
+            };
+
+            // --- Calendar Logic ---
+            const [viewMonth, setViewMonth] = React.useState(new Date(2026, 0, 1));
+            const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+            
+            const daysInMonth = React.useMemo(() => {
+                const year = viewMonth.getFullYear();
+                const month = viewMonth.getMonth();
+                const date = new Date(year, month, 1);
+                const days = [];
+                while (date.getMonth() === month) {
+                    days.push(new Date(date));
+                    date.setDate(date.getDate() + 1);
+                }
+                return days;
+            }, [viewMonth]);
+
+            const toggleDateStatus = (dateStr) => {
+                const newData = { ...data };
+                let userIdx = newData.availabilities.findIndex(a => a.name === userName);
+                if (userIdx === -1) {
+                    newData.availabilities.push({ name: userName, available: [dateStr], busy: [] });
+                } else {
+                    let user = newData.availabilities[userIdx];
+                    const isAvail = (user.available || []).includes(dateStr);
+                    const isBusy = (user.busy || []).includes(dateStr);
+                    if (!isAvail && !isBusy) user.available = [...(user.available || []), dateStr];
+                    else if (isAvail) {
+                        user.available = user.available.filter(d => d !== dateStr);
+                        user.busy = [...(user.busy || []), dateStr];
+                    } else user.busy = user.busy.filter(d => d !== dateStr);
+                }
+                setData(newData);
+            };
+
+            const handleVotePreference = (category, value) => {
+                const newData = { ...data };
+                const field = category === 'duration' ? 'durationVotes' : 'accommodationVotes';
+                const votes = newData.preferences[field][value] || [];
+                newData.preferences[field][value] = votes.includes(userName) ? votes.filter(u => u !== userName) : [...votes, userName];
+                setData(newData);
+            };
+
+            if (!isLoggedIn) {
+                return (
+                    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+                        <div className="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-10 border border-white text-center relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-4 opacity-10 rotate-12"><Sun size={80} className="text-orange-400" /></div>
+                            <div className="absolute bottom-0 left-0 p-4 opacity-10 -rotate-12"><Palmtree size={80} className="text-green-400" /></div>
+
+                            <div className="relative inline-block mb-8">
+                                <div className="bg-gradient-to-tr from-blue-500 to-cyan-400 w-24 h-24 rounded-3xl flex items-center justify-center mx-auto shadow-xl shadow-blue-200 transform rotate-3">
+                                    <MapPin className="text-white w-12 h-12" />
+                                </div>
+                                <div className="absolute -top-2 -right-2 bg-yellow-400 p-2 rounded-full shadow-md animate-bounce"><Sparkles className="text-white w-5 h-5" /></div>
+                            </div>
+
+                            <h1 className="text-3xl font-black text-slate-800 mb-2 tracking-tight">ไปเที่ยวกันเถอะ! 🌴</h1>
+                            <p className="text-slate-500 mb-8 font-medium italic">"ว่างไม่ว่าง... มาลงชื่อบอกเพื่อนกัน!"</p>
+                            
+                            <div className="space-y-4 relative z-10">
+                                <input type="text" className="w-full px-6 py-4 rounded-2xl border-2 border-slate-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-center text-lg font-bold" placeholder="ระบุชื่อเล่นของคุณ" value={userName} onChange={e => setUserName(e.target.value)} onKeyDown={e => e.key === 'Enter' && userName && setIsLoggedIn(true)} />
+                                <button onClick={() => userName && setIsLoggedIn(true)} className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black py-4 rounded-2xl hover:from-blue-700 hover:to-indigo-700 shadow-xl transform active:scale-95 transition-all text-lg">ออกเดินทางเลย! 🚀</button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="min-h-screen bg-slate-50 pb-24">
+                    {showSuccessModal && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+                            <div className="bg-white rounded-3xl p-8 max-w-xs w-full text-center shadow-2xl">
+                                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600"><CheckCircle size={48}/></div>
+                                <h3 className="text-xl font-bold mb-2">บันทึกสำเร็จ!</h3>
+                                <p className="text-slate-500 text-sm mb-6">ข้อมูลถูกส่งขึ้นระบบเรียบร้อยแล้ว เพื่อนๆ จะเห็นใน Dashboard ทันที</p>
+                                <button onClick={() => setShowSuccessModal(false)} className="w-full bg-slate-100 py-3 rounded-xl font-bold">ตกลง</button>
+                            </div>
+                        </div>
+                    )}
+
+                    <header className="bg-white border-b p-4 sticky top-0 z-50 flex justify-between items-center shadow-sm">
+                        <div className="flex items-center gap-2 font-black text-blue-600 uppercase tracking-tighter"><MapPin size={20}/> Trip Buddy</div>
+                        <div className="flex items-center gap-3">
+                            <div className="text-xs font-bold bg-blue-50 px-3 py-1.5 rounded-full text-blue-600 border border-blue-100">{userName}</div>
+                            <button onClick={() => setIsLoggedIn(false)} className="text-slate-400 hover:text-red-500 transition-colors"><LogOut size={18}/></button>
+                        </div>
+                    </header>
+
+                    <main className="p-4 md:p-8 max-w-3xl mx-auto space-y-6">
+                        <div className="flex bg-white p-1.5 rounded-2xl border shadow-sm">
+                            <button onClick={() => setActiveTab('availability')} className={`flex-1 py-3 rounded-xl font-bold transition-all ${activeTab === 'availability' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-50'}`}>1. ลงวันว่าง</button>
+                            <button onClick={() => setActiveTab('vote')} className={`flex-1 py-3 rounded-xl font-bold transition-all ${activeTab === 'vote' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-50'}`}>2. โหวตสไตล์/ที่เที่ยว</button>
+                        </div>
+
+                        {activeTab === 'availability' && (
+                            <div className="bg-white p-6 rounded-3xl border shadow-sm space-y-6">
+                                <div className="flex justify-between items-center">
+                                    <h2 className="font-black text-xl">ระบุตารางเวลา</h2>
+                                    <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-xl border text-sm font-bold">
+                                        <button onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth()-1))}><ChevronLeft size={16}/></button>
+                                        <span className="w-28 text-center">{months[viewMonth.getMonth()]} {viewMonth.getFullYear()+543}</span>
+                                        <button onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth()+1))}><ChevronRight size={16}/></button>
+                                    </div>
+                                </div>
+                                <div className="bg-blue-50 p-4 rounded-2xl flex gap-3 text-xs text-blue-800 border border-blue-100">
+                                    <Info size={16} className="shrink-0 text-blue-600"/>
+                                    <div>คลิก 1 ครั้ง = <strong>ว่าง</strong>, 2 ครั้ง = <strong>ติดธุระ</strong>, 3 ครั้ง = <strong>ล้างค่า</strong></div>
+                                </div>
+                                <div className="grid grid-cols-7 gap-1 text-center font-bold text-[10px] text-slate-300 uppercase tracking-widest">
+                                    {['อา','จ','อ','พ','พฤ','ศ','ส'].map(d => <div key={d} className="py-2">{d}</div>)}
+                                </div>
+                                <div className="grid grid-cols-7 gap-2">
+                                    {Array(viewMonth.getDay()).fill(null).map((_, i) => <div key={i}/>)}
+                                    {daysInMonth.map(date => {
+                                        const dStr = date.toISOString().split('T')[0];
+                                        const user = data.availabilities.find(a => a.name === userName);
+                                        const status = (user?.available || []).includes(dStr) ? 'avail' : (user?.busy || []).includes(dStr) ? 'busy' : 'none';
+                                        return (
+                                            <button key={dStr} onClick={() => toggleDateStatus(dStr)} className={`aspect-square rounded-xl border flex items-center justify-center font-bold text-sm transition-all transform active:scale-90 ${status === 'avail' ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-100' : status === 'busy' ? 'bg-red-500 border-red-500 text-white shadow-lg shadow-red-100' : 'bg-white border-slate-100 hover:border-blue-200'}`}>
+                                                {date.getDate()}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                <div className="pt-6 border-t">
+                                    <button onClick={() => syncToCloud(data, true)} disabled={isSaving} className="w-full bg-green-600 hover:bg-green-700 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 disabled:opacity-50">
+                                        {isSaving ? <span className="animate-pulse">กำลังบันทึก...</span> : <><Check size={20}/> ยืนยันข้อมูลวันว่าง</>}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'vote' && (
+                            <div className="space-y-6">
+                                <div className="bg-white p-6 rounded-3xl border shadow-sm space-y-6">
+                                    <h2 className="font-black text-xl flex items-center gap-2 text-slate-800"><Users className="text-blue-600"/> สไตล์ที่คุณชอบ</h2>
+                                    <div className="space-y-6">
+                                        <div>
+                                            <h3 className="text-xs font-black text-slate-400 mb-3 uppercase tracking-widest">ประเภทที่พัก</h3>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                {['โรงแรม', 'กางเต็นท์', 'Pool Villa', 'โฮมสเตย์', 'รีสอร์ท'].map(opt => (
+                                                    <button key={opt} onClick={() => handleVotePreference('accommodation', opt)} className={`p-4 rounded-xl border-2 text-sm font-bold text-left transition-all ${data.preferences.accommodationVotes[opt]?.includes(userName) ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'bg-slate-50 border-slate-100 hover:bg-slate-100'}`}>{opt}</button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h3 className="text-xs font-black text-slate-400 mb-3 uppercase tracking-widest">ระยะเวลาทริป</h3>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                {["1 วัน", "2 วัน 1 คืน", "3 วัน 2 คืน", "4 วัน 3 คืน"].map(opt => (
+                                                    <button key={opt} onClick={() => handleVotePreference('duration', opt)} className={`p-4 rounded-xl border-2 text-sm font-bold text-left transition-all ${data.preferences.durationVotes[opt]?.includes(userName) ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'bg-slate-50 border-slate-100 hover:bg-slate-100'}`}>{opt}</button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="bg-white p-6 rounded-3xl border shadow-sm space-y-6">
+                                    <h2 className="font-black text-xl flex items-center gap-2 text-slate-800"><Palmtree className="text-green-500" size={24}/> เสนอที่เที่ยว & โหวต</h2>
+                                    <div className="flex gap-2">
+                                        <input type="text" className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-xl px-5 py-4 outline-none focus:border-blue-500 transition-all font-bold" placeholder="เสนอที่พักหรือจังหวัด..." value={newLocationName} onChange={e => setNewLocationName(e.target.value)} />
+                                        <button onClick={() => { if(!newLocationName) return; const newData={...data, destinations:[...data.destinations, {id:Date.now(), name:newLocationName, votes:[userName]}]}; setData(newData); setNewLocationName(''); }} className="bg-blue-600 text-white p-4 rounded-xl shadow-lg hover:bg-blue-700 active:scale-90 transition-all"><Plus/></button>
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-3">
+                                        {data.destinations.map(dest => (
+                                            <div key={dest.id} className="flex items-center justify-between p-5 bg-slate-50 rounded-2xl border-2 border-white shadow-sm font-bold">
+                                                <span className="text-slate-700">{dest.name}</span>
+                                                <button onClick={() => { const newData={...data}; newData.destinations = newData.destinations.map(d => d.id === dest.id ? {...d, votes: d.votes.includes(userName) ? d.votes.filter(u=>u!==userName) : [...d.votes, userName]} : d); setData(newData); }} className={`p-3 rounded-2xl transition-all ${dest.votes.includes(userName) ? 'bg-blue-600 text-white shadow-lg scale-110' : 'bg-white text-slate-300 border border-slate-100'}`}><ThumbsUp size={20}/></button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <button onClick={() => syncToCloud(data, true)} disabled={isSaving} className="w-full bg-green-600 text-white font-black py-5 rounded-2xl shadow-xl transform active:scale-95 transition-all text-lg">{isSaving ? "กำลังบันทึกข้อมูล..." : "เสร็จสิ้นการโหวตทั้งหมด 🥂"}</button>
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
