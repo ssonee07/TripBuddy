@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TripBuddy - วางแผนทริปกัน!</title>
+    <title>TripBuddy - ว่างไหมไปเที่ยวกัน!</title>
     
     <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
@@ -143,8 +143,8 @@
                         <div class="bg-blue-500 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg animate-float">
                             <${Icon} name="MapPin" size="32" className="text-white" />
                         </div>
-                        <h1 class="text-2xl font-black text-slate-800 mb-2">เที่ยวไหนดี?</h1>
-                        <p class="text-slate-400 mb-8 text-xs font-bold uppercase tracking-widest">Group Trip Planner</p>
+                        <h1 class="text-2xl font-black text-slate-800 mb-2">ว่างไหมไปเที่ยวกัน</h1>
+                        <p class="text-slate-400 mb-8 text-xs font-bold uppercase tracking-widest">Let's go mate</p>
                         <input type="text" class="w-full px-6 py-4 rounded-2xl border-2 border-slate-100 focus:border-blue-400 outline-none text-center font-bold text-lg mb-4" placeholder="ใส่ชื่อเล่นของคุณ" value=${userName} onChange=${e => setUserName(e.target.value)} />
                         <button onClick=${() => userName && setIsLoggedIn(true)} class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-xl transform active:scale-95 transition-all">ไปกันเลย! 🚀</button>
                     </div>
@@ -241,4 +241,5 @@
         ReactDOM.createRoot(document.getElementById('root')).render(html`<${App} />`);
     </script>
 </body>
+
 </html>
