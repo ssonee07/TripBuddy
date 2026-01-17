@@ -5,13 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TripBuddy - วางแผนทริปกัน!</title>
     
+    <!-- Optimized Loading Order -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700;800&display=swap');
         body { font-family: 'Sarabun', sans-serif; -webkit-tap-highlight-color: transparent; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
@@ -21,9 +25,9 @@
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 text-sm">
-    <div id="boot-loader" style="position:fixed;inset:0;z-index:99;display:flex;align-items:center;justify-content:center;background:#f8fafc;transition:opacity 0.4s">
+    <div id="boot-loader" style="position:fixed;inset:0;z-index:99;display:flex;align-items:center;justify-content:center;background:#f8fafc;transition:opacity 0.3s">
         <div class="text-center">
-            <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+            <div class="w-10 h-10 border-4 border-rose-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
             <p class="font-bold text-slate-400 text-[10px] uppercase tracking-widest">TripBuddy Loading...</p>
         </div>
     </div>
@@ -48,7 +52,8 @@
                 Plus: html`<line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/>`,
                 Heart: html`<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>`,
                 Clock: html`<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>`,
-                Home: html`<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>`
+                Home: html`<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>`,
+                Info: html`<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/>`
             };
             return html`
                 <svg xmlns="http://www.w3.org/2000/svg" width=${size} height=${size} style=${{width: size+'px', height: size+'px'}} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0 ${className}">
@@ -56,7 +61,6 @@
                 </svg>`;
         };
 
-        // === ระบุ URL ของคุณที่นี่ ===
         const SHEET_URL = "https://script.google.com/macros/s/AKfycbz5nukgyV2w5goNKakjYkKrtWvk9l6MUgAg_WCJyhlKlexWgxf8ifS6YtjNXuIesm4t/exec"; 
 
         const App = () => {
@@ -74,9 +78,15 @@
                 preferences: { durationVotes: {}, accommodationVotes: {} } 
             });
 
+            // Fast Loader Removal
             useEffect(() => {
                 const loader = document.getElementById('boot-loader');
-                if (loader) { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 400); }
+                if (loader) {
+                    setTimeout(() => {
+                        loader.style.opacity = '0';
+                        setTimeout(() => loader.remove(), 300);
+                    }, 100);
+                }
             }, []);
 
             const fetchData = useCallback(async () => {
@@ -128,7 +138,7 @@
 
             const togglePlaceVote = (placeName) => {
                 const newData = { ...data };
-                const place = newData.destinations.find(d => d.name === placeName);
+                const place = (newData.destinations || []).find(d => d.name === placeName);
                 if (place) {
                     const votes = place.votes || [];
                     place.votes = votes.includes(userName) ? votes.filter(u => u !== userName) : [...votes, userName];
@@ -137,9 +147,13 @@
             };
 
             const daysInMonth = useMemo(() => {
-                const d = new Date(viewMonth.getFullYear(), viewMonth.getMonth(), 1);
+                const currentMonth = viewMonth.getMonth();
+                const d = new Date(viewMonth.getFullYear(), currentMonth, 1);
                 const days = [];
-                while (d.getMonth() === viewMonth.getMonth()) { days.push(new Date(d)); d.setDate(date.getDate() + 1); }
+                while (d.getMonth() === currentMonth) { 
+                    days.push(new Date(d)); 
+                    d.setDate(d.getDate() + 1); 
+                }
                 return days;
             }, [viewMonth]);
 
